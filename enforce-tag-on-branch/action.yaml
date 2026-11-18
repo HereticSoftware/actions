@@ -1,0 +1,24 @@
+name: Enforce tag on branch
+description: Fail when the current tag is not on a target branch.
+inputs:
+  branch:
+    description: Branch the tag must be on.
+    default: main
+runs:
+  using: composite
+  steps:
+  - name: Enforce tag is on target branch
+    shell: bash
+    env:
+      BRANCH: ${{ inputs.branch }}
+      GITHUB_REF_TYPE: ${{ github.ref_type }}
+      GITHUB_SHA: ${{ github.sha }}
+    run: |
+      if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+        git merge-base --is-ancestor "$GITHUB_SHA" "origin/$BRANCH" && code=0 || code=$?
+        case $code in
+          0) ;;
+          1) echo "::error::Tag isn't on $BRANCH."; exit 1 ;;
+          *) exit $code ;;
+        esac
+      fi

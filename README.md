@@ -24,3 +24,18 @@ Runs `dotnet run --file <file> -c Release -- --target <target> <arguments>`.
     target: Renovate
     arguments: --repository=${{ github.repository }}
 ```
+
+## [enforce-tag-on-branch](enforce-tag-on-branch/action.yaml)
+
+On tag runs, fails when the tagged commit is not on `origin/<branch>`. Passes on non-tag runs. Requires a checkout with `fetch-depth: 0`.
+
+| Input | Required | Default | Description |
+|---|---|---|---|
+| `branch` | | `main` | Branch the tag must be on. |
+
+```yaml
+- uses: actions/checkout@<sha>
+  with:
+    fetch-depth: 0
+- uses: HereticSoftware/actions/enforce-tag-on-branch@<sha>
+```
