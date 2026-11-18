@@ -68,3 +68,25 @@ jobs:
           project-url: ${{ vars.DEPENDENCIES_PROJECT_URL }}
           project-token: ${{ secrets.PROJECT_TOKEN }}
 ```
+
+## [setup-dotnet](setup-dotnet/action.yaml)
+
+Installs the SDK from `global.json`. `sdk.rollForward` selects the installed version:
+
+| `rollForward` | Installs (for `10.0.100`) |
+|---|---|
+| `latestPatch` | Latest `10.0.1xx` |
+| `latestFeature` | Latest `10.0.x` |
+| `latestMinor` | Latest `10.x` |
+| `latestMajor` | Latest |
+| other / unset | `10.0.100` |
+
+| Input | Required | Default | Description |
+|---|---|---|---|
+| `workload-restore` | | `false` | Run `dotnet workload restore` after install. |
+
+```yaml
+- uses: HereticSoftware/actions/setup-dotnet@<sha>
+  with:
+    workload-restore: true
+```
