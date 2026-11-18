@@ -1,0 +1,42 @@
+name: Renovate
+description: Run Renovate on the current repository and add its PRs to a project.
+inputs:
+  token:
+    description: Token Renovate uses to open PRs.
+    default: ${{ github.token }}
+  project-url:
+    description: Project URL to add open `dependencies` PRs to; empty skips.
+    default: ''
+  project-token:
+    description: Token with Projects read/write; empty skips.
+    default: ''
+runs:
+  using: composite
+  steps:
+  - name: Setup Node
+    uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+    with:
+      node-version: lts/*
+
+  - name: Renovate
+    shell: bash
+    env:
+      RENOVATE_TOKEN: ${{ inputs.token }}
+      RENOVATE_PLATFORM: github
+      RENOVATE_REPOSITORY: ${{ github.repository }}
+      RENOVATE_GIT_AUTHOR: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+    run: npx --yes renovate "$RENOVATE_REPOSITORY"
+
+  - name: Add PRs to Project
+    if: inputs.project-url != '' && inputs.project-token != ''
+    shell: bash
+    env:
+      GH_TOKEN: ${{ inputs.project-token }}
+      PROJECT_URL: ${{ inputs.project-url }}
+    run: |
+      owner=$(cut -d/ -f5 <<< "$PROJECT_URL")
+      number=$(cut -d/ -f7 <<< "$PROJECT_URL")
+      gh pr list --repo "$GITHUB_REPOSITORY" --label dependencies --state open --json url --jq '.[].url' |
+        while read -r url; do
+          gh project item-add "$number" --owner "$owner" --url "$url"
+        done
