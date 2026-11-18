@@ -4,8 +4,11 @@ inputs:
   token:
     description: Token Renovate uses to open PRs.
     default: ${{ github.token }}
+  git-author:
+    description: Commit author as `Name <email>`.
+    default: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
   project-url:
-    description: Project URL to add open `dependencies` PRs to; empty skips.
+    description: Project URL to add Renovate's PRs to; empty skips.
     default: ''
   project-token:
     description: Token with Projects read/write; empty skips.
@@ -24,7 +27,9 @@ runs:
       RENOVATE_TOKEN: ${{ inputs.token }}
       RENOVATE_PLATFORM: github
       RENOVATE_REPOSITORY: ${{ github.repository }}
-      RENOVATE_GIT_AUTHOR: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+      RENOVATE_GIT_AUTHOR: ${{ inputs.git-author }}
+      RENOVATE_REPORT_TYPE: file
+      RENOVATE_REPORT_PATH: ${{ runner.temp }}/renovate-report.json
     run: npx --yes renovate "$RENOVATE_REPOSITORY"
 
   - name: Add PRs to Project
@@ -33,10 +38,13 @@ runs:
     env:
       GH_TOKEN: ${{ inputs.project-token }}
       PROJECT_URL: ${{ inputs.project-url }}
+      REPORT: ${{ runner.temp }}/renovate-report.json
     run: |
       owner=$(cut -d/ -f5 <<< "$PROJECT_URL")
       number=$(cut -d/ -f7 <<< "$PROJECT_URL")
-      gh pr list --repo "$GITHUB_REPOSITORY" --label dependencies --state open --json url --jq '.[].url' |
-        while read -r url; do
+      jq -r '.repositories[].branches[]? | select(.prNo != null) | .prNo' "$REPORT" |
+        while read -r pr; do
+          url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$pr"
+          echo "Adding $url"
           gh project item-add "$number" --owner "$owner" --url "$url"
         done

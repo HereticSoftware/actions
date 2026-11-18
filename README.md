@@ -42,11 +42,12 @@ On tag runs, fails when the tagged commit is not on `origin/<branch>`. Passes on
 
 ## [renovate](renovate/action.yaml)
 
-Runs `npx renovate` on the current repository, then adds its open PRs labelled `dependencies` to a project.
+Runs `npx renovate` on the current repository, then adds the PRs from its report (`prNo` of each branch) to a project.
 
 | Input | Required | Default | Description |
 |---|---|---|---|
 | `token` | | `github.token` | Token Renovate uses to open PRs. |
+| `git-author` | | `github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>` | Commit author as `Name <email>`. |
 | `project-url` | | | Project URL, e.g. `https://github.com/orgs/<org>/projects/<n>`; empty skips. |
 | `project-token` | | | Token with Projects read/write; empty skips. |
 

@@ -1,0 +1,25 @@
+name: Renovate
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: 0 6 1 * *
+permissions:
+  contents: read
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Renovate
+        uses: ./renovate
+        with:
+          project-url: ${{ vars.DEPENDENCIES_PROJECT_URL }}
+          project-token: ${{ secrets.PROJECT_TOKEN }}

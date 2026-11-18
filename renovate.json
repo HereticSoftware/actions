@@ -1,0 +1,19 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    "group:allNonMajor"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "ignorePaths": [
+    ".github/workflows/**"
+  ],
+  "dependencyDashboard": {
+    "enabled": false
+  },
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 10
+}
