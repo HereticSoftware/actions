@@ -7,3 +7,20 @@ Shared actions for all organization repos.
 ```
 
 Pin to a commit SHA with the release tag as a comment; Renovate (`helpers:pinGitHubActionDigests`) updates both.
+
+## [cake-file](cake-file/action.yaml)
+
+Runs `dotnet run --file <file> -c Release -- --target <target> <arguments>`.
+
+| Input | Required | Default | Description |
+|---|---|---|---|
+| `file` | | `cake.cs` | Cake file to execute. |
+| `target` | ✓ | | Cake target. |
+| `arguments` | | | Additional arguments, separated by spaces. |
+
+```yaml
+- uses: HereticSoftware/actions/cake-file@<sha>
+  with:
+    target: Renovate
+    arguments: --repository=${{ github.repository }}
+```

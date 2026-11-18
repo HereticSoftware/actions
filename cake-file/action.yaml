@@ -1,0 +1,24 @@
+name: Cake File
+description: Execute a Cake file
+inputs:
+  file:
+    description: The cake file to execute, defaults to `cake.cs`.
+    default: cake.cs
+  target:
+    description: The cake target to use.
+    required: true
+  arguments:
+    description: Additional arguments passed to the cake file, separated by spaces.
+    default: ''
+runs:
+  using: composite
+  steps:
+  - name: Cake File
+    shell: bash
+    env:
+      CAKE_FILE: ${{ inputs.file }}
+      CAKE_TARGET: ${{ inputs.target }}
+      CAKE_ARGUMENTS: ${{ inputs.arguments }}
+    run: |
+      read -ra args <<< "$CAKE_ARGUMENTS"
+      dotnet run --file "$CAKE_FILE" -c Release -- --target "$CAKE_TARGET" "${args[@]}"
