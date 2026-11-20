@@ -8,9 +8,6 @@
   "labels": [
     "dependencies"
   ],
-  "ignorePaths": [
-    ".github/workflows/**"
-  ],
   "dependencyDashboard": {
     "enabled": false
   },
