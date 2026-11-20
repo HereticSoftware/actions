@@ -2,7 +2,7 @@ name: Renovate
 description: Run Renovate on the current repository and add its PRs to a project.
 inputs:
   token:
-    description: Token Renovate uses to open PRs.
+    description: Token Renovate uses to open PRs. With `github.token`, files under `.github/workflows/` are skipped.
     default: ${{ github.token }}
   git-author:
     description: Commit author as `Name <email>`.
@@ -30,7 +30,14 @@ runs:
       RENOVATE_GIT_AUTHOR: ${{ inputs.git-author }}
       RENOVATE_REPORT_TYPE: file
       RENOVATE_REPORT_PATH: ${{ runner.temp }}/renovate-report.json
-    run: npx --yes renovate "$RENOVATE_REPOSITORY"
+      DEFAULT_TOKEN: ${{ github.token }}
+    run: |
+      args=()
+      if [[ "$RENOVATE_TOKEN" == "$DEFAULT_TOKEN" ]]; then
+        # github.token cannot push workflow changes; CLI options are forced over the repo config.
+        args+=('--package-rules=[{"matchFileNames":[".github/workflows/**"],"enabled":false}]')
+      fi
+      npx --yes renovate "${args[@]}" "$RENOVATE_REPOSITORY"
 
   - name: Add PRs to Project
     if: inputs.project-url != '' && inputs.project-token != ''

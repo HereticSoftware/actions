@@ -46,14 +46,16 @@ Runs `npx renovate` on the current repository, then adds the PRs from its report
 
 | Input | Required | Default | Description |
 |---|---|---|---|
-| `token` | | `github.token` | Token Renovate uses to open PRs. |
+| `token` | | `github.token` | Token Renovate uses to open PRs. With `github.token`, files under `.github/workflows/` are skipped. |
 | `git-author` | | `github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>` | Commit author as `Name <email>`. |
 | `project-url` | | | Project URL, e.g. `https://github.com/orgs/<org>/projects/<n>`; empty skips. |
 | `project-token` | | | Token with Projects read/write; empty skips. |
 
 The calling job needs `contents`, `pull-requests` and `issues` set to `write`. With `github.token`:
 - enable *Settings → Actions → General → Allow GitHub Actions to create and approve pull requests*;
-- set `"ignorePaths": [".github/workflows/**"]` in `renovate.json`, since `github.token` cannot push workflow changes.
+- `.github/workflows/**` is skipped (forced CLI `packageRules` entry), since `github.token` cannot push workflow changes.
+
+Any other token updates workflows too. It needs *Contents*, *Pull requests*, *Issues*, *Workflows* and *Commit statuses* read/write, *Dependabot alerts* read, and organization *Members* read.
 
 ```yaml
 jobs:
@@ -66,6 +68,7 @@ jobs:
     steps:
       - uses: HereticSoftware/actions/renovate@<sha>
         with:
+          token: ${{ secrets.RENOVATE_TOKEN || github.token }}
           project-url: ${{ vars.DEPENDENCIES_PROJECT_URL }}
           project-token: ${{ secrets.PROJECT_TOKEN }}
 ```
